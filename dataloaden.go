@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/vektah/dataloaden/pkg/generator"
+	"github.com/arash16/dataloaden/pkg/generator"
 )
 
 func main() {
