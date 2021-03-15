@@ -19,9 +19,38 @@ import (
     {{if .ValType.ImportPath}}"{{.ValType.ImportPath}}"{{end}}
 )
 
+type {{.Name}}SorterConfig struct {
+	{{.Name}}Config
+	GetKey func({{.ValType.String}}) {{.KeyType.String}}
+}
+
+func New{{.Name}}Sorter(config {{.Name}}SorterConfig) *{{.Name}} {
+	return New{{.Name}}({{.Name}}Config{
+		MaxBatch: config.MaxBatch,
+		Wait:     config.Wait,
+		Fetch: func(ids []{{.KeyType.String}}) ([]{{.ValType.String}}, []error) {
+			items, err := config.Fetch(ids)
+			if err != nil {
+				return nil, err
+			}
+
+			itemById := map[{{.KeyType.String}}]{{.ValType.String}}{}
+			for _, item := range items {
+				itemById[config.GetKey(item)] = item
+			}
+
+			result := make([]{{.ValType.String}}, len(ids))
+			for i, id := range ids {
+				result[i] = itemById[id]
+			}
+			return items, nil
+		},
+	})
+}
+
 // {{.Name}}Config captures the config to create a new {{.Name}}
 type {{.Name}}Config struct {
-	// Fetch is a method that provides the data for the loader 
+	// Fetch is a method that provides the data for the loader
 	Fetch func(keys []{{.KeyType.String}}) ([]{{.ValType.String}}, []error)
 
 	// Wait is how long wait before sending a batch
@@ -40,7 +69,7 @@ func New{{.Name}}(config {{.Name}}Config) *{{.Name}} {
 	}
 }
 
-// {{.Name}} batches and caches requests          
+// {{.Name}} batches and caches requests
 type {{.Name}} struct {
 	// this method provides the data for the loader
 	fetch func(keys []{{.KeyType.String}}) ([]{{.ValType.String}}, []error)
