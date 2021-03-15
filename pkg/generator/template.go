@@ -20,7 +20,16 @@ import (
 )
 
 type {{.Name}}SorterConfig struct {
-	{{.Name}}Config
+	// Fetch is a method that provides the data for the loader
+	Fetch func(keys []{{.KeyType.String}}) ([]{{.ValType.String}}, []error)
+
+	// Wait is how long wait before sending a batch
+	Wait time.Duration
+
+	// MaxBatch will limit the maximum number of keys to send in one batch, 0 = not limit
+	MaxBatch int
+
+	// You need to return item's key here
 	GetKey func({{.ValType.String}}) {{.KeyType.String}}
 }
 
