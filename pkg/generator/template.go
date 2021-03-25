@@ -52,7 +52,7 @@ func New{{.Name}}Sorter(config {{.Name}}SorterConfig) *{{.Name}} {
 			for i, id := range ids {
 				result[i] = itemById[id]
 			}
-			return items, nil
+			return result, nil
 		},
 	})
 }
